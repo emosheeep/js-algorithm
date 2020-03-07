@@ -28,10 +28,31 @@ init(sparse)
  * 二者的打印结果不同（正确的前提下）
  * 是因为遍历的初始节点选取不同
  */
-new DenseIterator(dense) // 稠密图的深度和广度
-new SparseIterator(sparse) // 稀疏图的深度和广度
+const denseIter = new DenseIterator(dense) // 稠密图的深度和广度
+const sparseIter = new SparseIterator(sparse) // 稀疏图的深度和广度
 
+console.group('-----------------------深度优先遍历--------------------------')
+denseIter.dfsIter()
+sparseIter.dfsIter()
+console.groupEnd()
+
+console.group('-----------------------路径测试--------------------------')
+console.log('邻接表中（1, 2）路径：', sparseIter.path(1, 2).join('->'))
+console.log('邻接矩阵（1, 2）路径：', denseIter.path(1, 2).join('->'))
+console.groupEnd()
+
+console.group('-----------------------广度优先遍历--------------------------')
+denseIter.bfsIter()
+sparseIter.bfsIter()
+console.groupEnd()
+
+console.group('-----------------------最短路径测试--------------------------')
+console.log('邻接表中（1, 2）最短路径：', sparseIter.shortestPath(1, 2).join('->'))
+console.log('邻接矩阵（1, 2）最短路径：', denseIter.shortestPath(1, 2).join('->'))
+console.groupEnd()
+
+console.group('-----------------------打印输出--------------------------')
 dense.show()
 sparse.show()
-
+console.groupEnd()
 
