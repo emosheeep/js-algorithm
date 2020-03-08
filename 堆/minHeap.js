@@ -2,19 +2,15 @@
  * 实现一个最小堆
  */
 class MinHeap {
-	constructor (arr) {
+	constructor (comparator) {
 		this.container = []
-		// arr用于堆排序
-		if (arr) {
-			this.container = arr
-			// 直接通过现有数组构造堆，
-			for (let i = Math.floor((arr.length-1) / 2); i >= 0; i--) {
-				this.shiftDown(i)
-			}
-		}
+		comparator && (this.compare = comparator)
 	}
 	print () {
 		console.log(this.container)
+	}
+	size () {
+		return this.container.length
 	}
 	push (item) {
 		this.container.push(item)
@@ -69,6 +65,9 @@ class MinHeap {
 		this.container[a] = this.container[b]
 		this.container[b] = tmp
 	}
+	compare (parent, child) {
+		return parent > child // 最小堆中，父元素大则交换
+	}
 	/**
 	 * [将新插入的元素向上移动]
 	 */
@@ -76,7 +75,10 @@ class MinHeap {
 		let current = this.container.length - 1
 		const target = this.container[current] // 对新插入的元素shiftUp
 		// 如果父元素小则要换下来
-		while (this.hasParent(current) && this.getParent(current) > target) {
+		while (
+			this.hasParent(current) && 
+			this.compare(this.getParent(current), target)
+		) {
 			const parentIndex = this.getParentIndex(current)
 			this.container[current] = this.container[parentIndex]
 			current = parentIndex // 继续向上遍历
@@ -87,17 +89,17 @@ class MinHeap {
 		// 判断是否有左孩子就可以确定当前节点有没有子元素，没有子元素的话，循环就没有必要进行了
 		while (this.hasLeftChild(parent)) {
 			// 每轮循环的目的是，让子元素中的较大值和父元素交换
-			// 有右孩子，且右孩子小于左孩子，则和右孩子交换，否则和左孩子交换
 			const smallerIndex = (
 				this.hasRightChild(parent) &&
-				this.getRightChild(parent) < this.getLeftChild(parent)
+				this.compare(this.getLeftChild(parent), this.getRightChild(parent))
+				
 			)
 			? this.getRightChildIndex(parent)
 			: this.getLeftChildIndex(parent)
 			
 
 			// 如果父元素没有子元素，或大于子元素则退出，循环结束
-			if (this.container[parent] <= this.container[smallerIndex]) break;
+			if (!this.compare(this.container[parent], this.container[smallerIndex])) break;
 
 			this.swap(parent, smallerIndex)
 			parent = smallerIndex // 循环继续
@@ -106,7 +108,3 @@ class MinHeap {
 }
 
 module.exports = { MinHeap }
-
-const minHeap = new MinHeap([9,8,7,6,5,4,3,2,1])
-
-minHeap.print()

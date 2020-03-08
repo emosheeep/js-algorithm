@@ -1,10 +1,11 @@
 /**
- * 实现一个索引堆
+ * 最小索引堆，将this.compare反转即可变成最大索引堆
  */
 class IndexMinHeap {
-	constructor () {
+	constructor (comparator) {
 		this.container = [] // 存储数据
 		this.indexes = []   // 存储数据对应的索引
+		comparator && (this.compare = comparator) // 比较器
 	}
 	print () {
 		console.log('indexes', this.indexes)
@@ -13,12 +14,12 @@ class IndexMinHeap {
 	size () {
 		return this.indexes.length
 	}
-	push (index, item) {
-		this.container[index] = item
+	push (index, edge) {
+		this.container[index] = edge
 		this.indexes.push(index) // 存储索引
 		this.shiftUp()
 	}
-	// 取出优先队列第一个值，相应对后面的值进行shiftDown操作，保持最大堆的性质
+	// 取出最小值，相应对后面的值进行shiftDown操作
 	shift () {
 		const index = this.indexes.pop()
 
@@ -32,8 +33,8 @@ class IndexMinHeap {
 	    this.shiftDown()
 
 	    return item
-	}
-	// 取出最小值的索引
+    }
+    // 取出最小值的索引
     shiftIndex () {
         const index = this.indexes.pop()
 
@@ -74,8 +75,13 @@ class IndexMinHeap {
 	getRightChild (index) {
 		return this.getItem(this.getRightChildIndex(index))
 	}
+	// 内部排序使用
 	getItem (index) {
 		return this.container[this.indexes[index]]
+	}
+	// 供用户使用
+	get (index) {
+		return this.container[index]
 	}
 	swap (a, b) {
 		// 交换索引数组中的索引，不改变container数组
@@ -84,32 +90,41 @@ class IndexMinHeap {
 		this.indexes[b] = tmp
 	}
 	/**
+	 * 父元素大则交换（最小堆）
+	 * @param {*} parent 当前元素
+	 * @param {*} child 当前元素的父元素
+	 */
+	compare (parent, child) {
+		return parent > child
+	}
+	/**
 	 * [将新插入的元素的索引向上移动]
 	 */
 	shiftUp (current = this.indexes.length - 1) {
-		// 如果父元素小则要换下来
-		while (this.hasParent(current) && this.getParent(current) > this.getItem(current)) {
+		// 如果父元素大于当前元素则要换下来
+		while (
+			this.hasParent(current) &&
+			this.compare(this.getParent(current), this.getItem(current))
+		) {
 			const parentIndex = this.getParentIndex(current)
 			this.swap(current, parentIndex) // 当前元素和父元素交换，直到交换到顶部，也可以
 			current = parentIndex // 继续向上遍历
 		}
 	}
 	shiftDown (parent = 0) {
-		// 可以类似插入排序的优化，将交换变为赋值
 		// 判断是否有左孩子就可以确定当前节点有没有子元素，没有子元素的话，循环就没有必要进行了
 		while (this.hasLeftChild(parent)) {
-			// 每轮循环的目的是，让子元素中的较大值和父元素交换
-			// 有右孩子，且右孩子大于左孩子，则和右孩子交换，否则和左孩子交换
+			// 每轮循环的目的是，让子元素中的较小值和父元素交换
 			const smallerChild = (
 				this.hasRightChild(parent) &&
-				this.getRightChild(parent) < this.getLeftChild(parent)
+				this.compare(this.getLeftChild(parent), this.getRightChild(parent))
 			)
 			? this.getRightChildIndex(parent)
 			: this.getLeftChildIndex(parent)
 			
 
-			// 如果父元素没有子元素，或大于子元素则退出，循环结束
-			if (this.getItem(parent) <= this.getItem(smallerChild)) break;
+			// 如果父元素小于等于子元素
+			if (!this.compare(this.getItem(parent), this.getItem(smallerChild))) break;
 
 			this.swap(parent, smallerChild)
 

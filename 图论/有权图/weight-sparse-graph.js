@@ -1,8 +1,8 @@
 /**
  * 稀疏图——使用邻接表存储
  */
-const { MinHeap } = require('./minheap-edge.js')
-const { IndexMinHeap } = require('./indexMinHeap-edge.js')
+const { MinHeap } = require('../../堆/minHeap.js')
+const { IndexMinHeap } = require('../../堆/indexMinHeap.js')
 
 class SparseGraph {
     constructor (n, directed = false) {
@@ -191,7 +191,7 @@ class SparseGraph {
     // lazy是因为，对于已经不可能成为最小生成树中的边暂时不予剔除，在将来判断时统一处理
     lazyPrim () {
         const marked = new Array(this.n).fill(false) // 标记节点是否已经计入最小生成树
-        const minEdge = new MinHeap() // 用来存储所有邻切边，并从中拿出权值最小的边
+        const minEdge = new MinHeap((a, b) => a.weight > b.weight) // 用来存储所有邻切边，并从中拿出权值最小的边
         const mst = [] // 存储最小生成树
         let weight = 0 // 权值总和
 
@@ -241,12 +241,14 @@ class SparseGraph {
         console.log(mst)
         console.log('最小权值', weight)
         console.groupEnd()
+
+        return weight
     }
     // prim算法的优化版本，使用索引堆剔除不可能的边，减少不必要的遍历
     prim () {
         const marked = new Array(this.n).fill(false) // 标记节点是否已经计入最小生成树
-        const EdgeTo = new Array(this.n).fill(null) // 暂存相邻边中的最短边
-        const minWeight = new IndexMinHeap() // 用来存储所有邻切边，并从中拿出权值最小的边
+        // 用来存储所有邻切边，并从中拿出权值最小的边
+        const minEdge = new IndexMinHeap((e1, e2) => e1.weight > e2.weight)
         const mst = [] // 存储最小生成树
         let weight = 0 // 权值总和
 
@@ -259,13 +261,11 @@ class SparseGraph {
             for (const edge of this.map[i]) {
                 if (!marked[edge.to]) {
                     // 如果之前没有找到过与edge.to相邻的横切边
-                    if (!EdgeTo[edge.to]) {
-                        minWeight.push(edge.to, edge.weight)
-                        EdgeTo[edge.to] = edge
+                    if (!minEdge.get(edge.to)) {
+                        minEdge.push(edge.to, edge)
                         // 如果之前已经找到过，则对比weight值，小的覆盖大的
-                    } else if (edge.weight < EdgeTo[edge.to].weight) {
-                        minWeight.change(edge.to, edge.weight)
-                        EdgeTo[edge.to] = edge
+                    } else if (edge.weight < minEdge.get(edge.to).weight) {
+                        minEdge.change(edge.to, edge)
                     }
                 }
             }
@@ -273,13 +273,10 @@ class SparseGraph {
 
         visit(0) // 初始从0节点开始访问
 
-        while (minWeight.size() !== 0) {
-            // 获取最小邻切边权值对应的索引
-            // 同时这个索引也是下一个要访问的节点（edge.to）
-            const index = minWeight.shiftIndex()
-            const edge = EdgeTo[index]
+        while (minEdge.size() !== 0) {
+            // 获取最小邻切边
+            const edge = minEdge.shift()
             console.assert(edge, '邻切边不存在')
-
             mst.push(edge) // 将满足条件的边保存起来
 
             visit(edge.to)
@@ -293,6 +290,8 @@ class SparseGraph {
         console.log(mst)
         console.log('最小权值', weight)
         console.groupEnd()
+
+        return weight
     }
 }
 

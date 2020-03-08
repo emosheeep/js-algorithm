@@ -11,11 +11,20 @@ function createArr (n, min, max) {
 	}
 	return arr
 }
-function isSorted (arr) {
-	for (let i = 0; i < arr.length - 1; i ++) {
-		if (Math.min(arr[i], arr[i + 1]) !== arr[i]) 
-			return false
+function isSorted (arr, direction = true) {
+	// 由小到大
+	if (direction) {
+		for (let i = 0; i < arr.length - 1; i ++) {
+			if (Math.min(arr[i], arr[i + 1]) !== arr[i]) 
+				return false
+		}
+	} else {
+		for (let i = 0; i < arr.length - 1; i ++) {
+			if (Math.max(arr[i], arr[i + 1]) !== arr[i]) 
+				return false
+		}
 	}
+	
 	return true
 }
 
