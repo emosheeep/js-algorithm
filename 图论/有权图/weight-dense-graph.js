@@ -1,6 +1,8 @@
 /**
  * 稠密图——用来邻接矩阵来存储
  */
+const { MinHeap } = require('./minheap-edge.js') // 定制的一个存放edge对象的最小堆，使用权值edge.weight作为排序依据
+
 class DenseGraph {
     constructor (n, directed = false) {
         this.n = n
@@ -178,6 +180,50 @@ class DenseGraph {
             }
             return path.reverse() // 再正过来就是顺序路径
         }
+    }
+    // lazyPrim最小生成树算法，详细注释查看weight-sparse-graph.js
+    lazyPrim () {
+        const marked = new Array(this.n).fill(false)
+        const minEdge = new MinHeap()
+        const mst = []
+        let weight = 0
+
+        const visit = i => {
+            console.assert(!marked[i], `节点${i}已经访问过`)
+            marked[i] = true
+
+            for (const edge of this.map[i]) {
+                if (edge && !marked[edge.to]) {
+                    minEdge.push(edge)
+                }
+            }
+        }
+
+        visit(0)
+        while (minEdge.size() !== 0) {
+            const edge = minEdge.shift()
+
+            if (marked[edge.to] === marked[edge.from]) {
+                continue
+            }
+
+            mst.push(edge)
+
+            if (!marked[edge.to]) {
+                visit(edge.to)
+            } else {
+                visit(edge.from)
+            }
+        }
+
+        weight = mst.reduce((result, edge) => {
+            result += edge.weight
+            return result
+        }, 0)
+        console.group('邻接矩阵最小生成树:')
+        console.log(mst)
+        console.log('最小权值', weight)
+        console.groupEnd()
     }
 }
 

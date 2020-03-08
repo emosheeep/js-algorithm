@@ -1,6 +1,8 @@
 /**
  * 稀疏图——使用邻接表存储
  */
+const { MinHeap } = require('./minheap-edge.js') // 求最小生成树时的辅助，求最小边
+
 class SparseGraph {
     constructor (n, directed = false) {
         this.n = n
@@ -143,13 +145,14 @@ class SparseGraph {
             return from.slice(0, from.indexOf(b) + 1)
         }
     }
+    // 利用广度优先遍历求最短路径
     shortestPath (a, b) {
         console.assert(a >= 0 && a < this.n)
         console.assert(b >= 0 && b < this.n)
 
         const visited = []
         const list = [] // 队列
-        const from = new Array(this.n).fill(-1) // 保存对应节点是从哪个节点过来的
+        const from = new Array(this.n).fill(-1) // 保存对应节点是从哪个节点过来的（精髓）
 
         const bfs = i => {
             visited[i] = true
@@ -183,6 +186,60 @@ class SparseGraph {
             }
             return path.reverse()
         }
+    }
+    // lazy是因为，对于已经不可能成为最小生成树中的边暂时不予剔除，在将来判断时统一处理
+    lazyPrim () {
+        const marked = new Array(this.n).fill(false) // 标记节点是否已经计入最小生成树
+        const minEdge = new MinHeap() // 用来存储所有邻切边，并从中拿出权值最小的边
+        const mst = [] // 存储最小生成树
+        let weight = 0 // 权值总和
+
+        // 访问某个节点，将邻边推入最小堆
+        const visit = i => {
+            console.assert(!marked[i], `节点${i}已经访问过`)
+            marked[i] = true
+
+            // 将i节点的所有未访问过的邻边放入最小堆
+            for (const edge of this.map[i]) {
+                // 如果邻边对应的节点没有访问过，就把边放入堆中
+                if (!marked[edge.to]) {
+                    minEdge.push(edge)
+                }
+            }
+        }
+
+        visit(0) // 初始从0节点开始访问
+        
+        while (minEdge.size() !== 0) {
+            const edge = minEdge.shift() // 获取最小邻切边
+
+            /**
+             * 如果这条边已经被标记了，那么忽略掉
+             * 实际上，能运行到这里，则不可能同为false，只能为同true
+             * 同true说明都已经是最小生成树中的点，说明这条边没用了
+             */
+            if (marked[edge.to] === marked[edge.from]) { 
+                continue
+            }
+
+            mst.push(edge) // 将满足条件的边保存起来
+
+            // 紧接着检查这条边的两个顶点，确定下一步访问的节点
+            if (!marked[edge.from]) {
+                visit(edge.from)
+            } else {
+                visit(edge.to)
+            }
+        }
+
+        weight = mst.reduce((result, edge) => {
+            result += edge.weight
+            return result
+        }, 0)
+        console.group('邻接表最小生成树:')
+        console.log(mst)
+        console.log('最小权值', weight)
+        console.groupEnd()
     }
 }
 
