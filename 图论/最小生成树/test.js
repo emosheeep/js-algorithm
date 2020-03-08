@@ -40,3 +40,13 @@ console.group('-----------------------Lazy Prim 最小生成树-----------------
 sparse.lazyPrim()
 dense.lazyPrim()
 console.groupEnd()
+
+console.group('-----------------------Lazy Prim 最小生成树--------------------------')
+sparse.lazyPrim()
+dense.lazyPrim()
+console.groupEnd()
+
+console.group('-----------------------Prim 最小生成树--------------------------')
+sparse.prim()
+// dense.lazyPrim()
+console.groupEnd()

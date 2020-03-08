@@ -1,7 +1,8 @@
 /**
  * 稀疏图——使用邻接表存储
  */
-const { MinHeap } = require('./minheap-edge.js') // 求最小生成树时的辅助，求最小边
+const { MinHeap } = require('./minheap-edge.js')
+const { IndexMinHeap } = require('./indexMinHeap-edge.js')
 
 class SparseGraph {
     constructor (n, directed = false) {
@@ -230,6 +231,58 @@ class SparseGraph {
             } else {
                 visit(edge.to)
             }
+        }
+
+        weight = mst.reduce((result, edge) => {
+            result += edge.weight
+            return result
+        }, 0)
+        console.group('邻接表最小生成树:')
+        console.log(mst)
+        console.log('最小权值', weight)
+        console.groupEnd()
+    }
+    // prim算法的优化版本，使用索引堆剔除不可能的边，减少不必要的遍历
+    prim () {
+        const marked = new Array(this.n).fill(false) // 标记节点是否已经计入最小生成树
+        const EdgeTo = new Array(this.n).fill(null) // 暂存相邻边中的最短边
+        const minWeight = new IndexMinHeap() // 用来存储所有邻切边，并从中拿出权值最小的边
+        const mst = [] // 存储最小生成树
+        let weight = 0 // 权值总和
+
+        // 访问某个节点，将邻边推入最小堆
+        const visit = i => {
+            console.assert(!marked[i], `节点${i}已经访问过`)
+            marked[i] = true
+
+            // 将i节点的所有未访问过的邻边放入最小堆
+            for (const edge of this.map[i]) {
+                if (!marked[edge.to]) {
+                    // 如果之前没有找到过与edge.to相邻的横切边
+                    if (!EdgeTo[edge.to]) {
+                        minWeight.push(edge.to, edge.weight)
+                        EdgeTo[edge.to] = edge
+                        // 如果之前已经找到过，则对比weight值，小的覆盖大的
+                    } else if (edge.weight < EdgeTo[edge.to].weight) {
+                        minWeight.change(edge.to, edge.weight)
+                        EdgeTo[edge.to] = edge
+                    }
+                }
+            }
+        }
+
+        visit(0) // 初始从0节点开始访问
+
+        while (minWeight.size() !== 0) {
+            // 获取最小邻切边权值对应的索引
+            // 同时这个索引也是下一个要访问的节点（edge.to）
+            const index = minWeight.shiftIndex()
+            const edge = EdgeTo[index]
+            console.assert(edge, '邻切边不存在')
+
+            mst.push(edge) // 将满足条件的边保存起来
+
+            visit(edge.to)
         }
 
         weight = mst.reduce((result, edge) => {

@@ -1,24 +1,24 @@
 /**
- * 实现一个索引堆
+ * 最小索引堆
  */
-class IndexMaxHeap {
+class IndexMinHeap {
 	constructor () {
 		this.container = [] // 存储数据
 		this.indexes = []   // 存储数据对应的索引
 	}
-	size () {
-		return this.indexes.length
-	}
 	print () {
 		console.log('indexes', this.indexes)
 		console.log('container', this.container)
+	}
+	size () {
+		return this.indexes.length
 	}
 	push (index, item) {
 		this.container[index] = item
 		this.indexes.push(index) // 存储索引
 		this.shiftUp()
 	}
-	// 取出优先队列第一个值，相应对后面的值进行shiftDown操作，保持最大堆的性质
+	// 取出最小值，相应对后面的值进行shiftDown操作
 	shift () {
 		const index = this.indexes.pop()
 
@@ -32,8 +32,8 @@ class IndexMaxHeap {
 	    this.shiftDown()
 
 	    return item
-	}
-	// 取出最大值的索引
+    }
+    // 取出最小值的索引
     shiftIndex () {
         const index = this.indexes.pop()
 
@@ -88,7 +88,7 @@ class IndexMaxHeap {
 	 */
 	shiftUp (current = this.indexes.length - 1) {
 		// 如果父元素小则要换下来
-		while (this.hasParent(current) && this.getParent(current) < this.getItem(current)) {
+		while (this.hasParent(current) && this.getParent(current) > this.getItem(current)) {
 			const parentIndex = this.getParentIndex(current)
 			this.swap(current, parentIndex) // 当前元素和父元素交换，直到交换到顶部，也可以
 			current = parentIndex // 继续向上遍历
@@ -100,24 +100,24 @@ class IndexMaxHeap {
 		while (this.hasLeftChild(parent)) {
 			// 每轮循环的目的是，让子元素中的较大值和父元素交换
 			// 有右孩子，且右孩子大于左孩子，则和右孩子交换，否则和左孩子交换
-			const biggerIndex = (
+			const smallerChild = (
 				this.hasRightChild(parent) &&
-				this.getRightChild(parent) > this.getLeftChild(parent)
+				this.getRightChild(parent) < this.getLeftChild(parent)
 			)
 			? this.getRightChildIndex(parent)
 			: this.getLeftChildIndex(parent)
 			
 
 			// 如果父元素没有子元素，或大于子元素则退出，循环结束
-			if (this.getItem(parent) >= this.getItem(biggerIndex)) break;
+			if (this.getItem(parent) <= this.getItem(smallerChild)) break;
 
-			this.swap(parent, biggerIndex)
+			this.swap(parent, smallerChild)
 
-			parent = biggerIndex // 循环继续
+			parent = smallerChild // 循环继续
 		}
 	}
 	/**
-	 * 注意改的是container，但是调整的是indexes数组
+	 * 注意改的是container，但是调整的是indexes数组，这里比较绕
 	 * @param  index [要修改的索引]
 	 * @param  item  [要修改的值]
 	 */
@@ -134,4 +134,15 @@ class IndexMaxHeap {
 	}
 }
 
-module.exports = { IndexMaxHeap }
+module.exports = { IndexMinHeap }
+
+const min = new IndexMinHeap()
+min.push(7, 16)
+min.push(4, 38)
+min.push(6, 58)
+min.push(2, 26)
+
+console.log(min)
+console.log(min.shift(), min.shift(), min.shift()
+,min.shift(),min.shift())
+console.log(min.size())

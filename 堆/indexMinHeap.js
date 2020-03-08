@@ -13,9 +13,9 @@ class IndexMinHeap {
 	size () {
 		return this.indexes.length
 	}
-	push (item) {
-		this.container.push(item)
-		this.indexes.push(this.container.length - 1) // 存储索引
+	push (index, item) {
+		this.container[index] = item
+		this.indexes.push(index) // 存储索引
 		this.shiftUp()
 	}
 	// 取出优先队列第一个值，相应对后面的值进行shiftDown操作，保持最大堆的性质
@@ -33,6 +33,20 @@ class IndexMinHeap {
 
 	    return item
 	}
+	// 取出最小值的索引
+    shiftIndex () {
+        const index = this.indexes.pop()
+
+		if (this.indexes.length === 0) {
+			return index
+        }
+        
+        const item =  this.indexes[0]
+	    this.indexes[0] = index // 调整索引值并进行shiftDown操作
+	    this.shiftDown()
+
+	    return item
+    }
 	getParentIndex (index) {
 		return Math.floor((index - 1) / 2)
 	}
@@ -103,7 +117,7 @@ class IndexMinHeap {
 		}
 	}
 	/**
-	 * 注意改的是container，但是调整的是indexes数组
+	 * 注意改的是container，但是调整的是indexes数组，这里比较绕
 	 * @param  index [要修改的索引]
 	 * @param  item  [要修改的值]
 	 */

@@ -6,9 +6,9 @@ const arr = [0, 1, 2, 3, 4, 5]
 const indexMaxHeap = new IndexMaxHeap()
 const indexMinHeap = new IndexMinHeap()
 
-arr.forEach(i => {
-    indexMaxHeap.push(i)
-    indexMinHeap.push(i)
+arr.forEach((item, index) => {
+    indexMaxHeap.push(index, item)
+    indexMinHeap.push(index, item)
 })
 
 indexMinHeap.change(0, 6)
