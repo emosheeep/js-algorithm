@@ -1,10 +1,49 @@
 /**
- * 稠密图（邻接矩阵）的深度优先遍历和广度优先遍历
+ * 稀疏图——使用邻接表存储
  */
-class DenseIterator {
-    constructor (graph) {
-        this.n = graph.map.length // 节点个数
-        this.graph = graph // 图的引用
+class SparseGraph {
+    constructor (n, directed = false) {
+        this.n = n
+        this.map = []
+        this.directed = directed // 表示是否为有向图
+        this.sum = 0 // 表示边的数量
+        
+        for (let i = 0; i < n; i++) 
+            this.map.push([]) // 初始化n维度数组
+    }
+    addEdge (i, j, weight) {
+        // 平行边可以先不处理，有需要再删除
+        // if (this.hasEdge(i, j))
+        //     return
+    
+        this.map[i].push({
+            from: i,
+            to: j,
+            weight
+        })
+
+        // i !== j 是防止自环
+        if (i !== j && !this.directed) {
+            this.map[j].push({
+                from: j,
+                to: i,
+                weight
+            })
+        }
+
+        this.sum ++
+    }
+    hasEdge (i, j) {
+        console.assert(i >= 0 && i < this.map.length)
+        console.assert(j >= 0 && j < this.map.length)
+
+        return this.map[i].include(edge => edge.to === j)
+    }
+    show () {
+        for (let i = 0; i < this.map.length; i ++) {
+            const result = this.map[i].map(edge => `${edge.to}(${edge.weight})`)
+            console.log(i, ':', result.join(' '))
+        }
     }
     /**
      * 邻接表的深度优先遍历
@@ -21,16 +60,10 @@ class DenseIterator {
         const dfs = i => {
             visited[i] = true
             resultStr += `${i} `
-
-            /**
-             * 除了需要判断是否访问过，还要判断节点i、j之间是否存在一条边
-             * 额外的判断，和不必要的遍历，影响了一部分性能
-             * 所以如果边数少，属于稀疏图的话，最好使用邻接表来表示
-             */
-            for (let j = 0; j < this.n; j ++) {
-                if (this.graph.map[i][j] === 1 && !visited[j]) {
-                    dfs(j)
-                }
+    
+            for (const edge of this.map[i]) {
+                if (!visited[edge.to])
+                    dfs[edge.to]
             }
         }
 
@@ -43,11 +76,11 @@ class DenseIterator {
             }
         }
 
-        console.log('邻接矩阵：', resultStr)
+        console.log('邻接表：', resultStr)
         console.log('连通分量: ', count)
     }
     /**
-     * 广度优先遍历
+     * 邻接表的广度优先遍历
      */
     bfsIter () {
         const visited = []
@@ -62,13 +95,14 @@ class DenseIterator {
             while (list.length !== 0) {
                 i = list.shift()
                 resultStr += `${i} `
-
-                for (let j = 0; j < this.n; j++) {
-                    if (!visited[j] && this.graph.map[i][j] === 1) {
-                        list.push(j)
-                        visited[j] = true // 加入队列之后迟早会访问到，置为true
+                
+                for (const edge of this.map[i]) {
+                    if (!visited[edge.to]) {
+                        list.push(edge.to)
+                        visited[edge.to] = true // 加入队列之后迟早会访问到，置为true
                     }
-                }                
+                }
+                
             }
         }
 
@@ -81,12 +115,10 @@ class DenseIterator {
             }
         }
 
-        console.log('邻接矩阵：', resultStr)
+        console.log('邻接表：', resultStr)
         console.log('连通分量', count)
     }
-    /**
-     * 获得a, b之间的路径
-     */
+    // 任意找一条路径
     path (a, b) {
         console.assert(a >= 0 && a < this.n)
         console.assert(b >= 0 && b < this.n)
@@ -96,25 +128,28 @@ class DenseIterator {
         const dfs = i => {
             visited[i] = true
             from.push(i)
-
-            for (let j = 0; j < this.graph.map[i].length; j ++) {
-                if (this.graph.map[i][j] === 1 && !visited[j]) {
-                    dfs(j)
+            
+            for (const edge of this.map[i]) {
+                if (!visited[edge.to]) {
+                    dfs(edge.to)
                 }
             }
         }
         dfs(a) // 从a开始深度遍历
         
         if (!visited[b]) {
-            return false
+            return []
         } else {
             return from.slice(0, from.indexOf(b) + 1)
         }
     }
     shortestPath (a, b) {
+        console.assert(a >= 0 && a < this.n)
+        console.assert(b >= 0 && b < this.n)
+
         const visited = []
         const list = [] // 队列
-        const from = new Array(this.n).fill(-1)
+        const from = new Array(this.n).fill(-1) // 保存对应节点是从哪个节点过来的
 
         const bfs = i => {
             visited[i] = true
@@ -122,14 +157,15 @@ class DenseIterator {
 
             while (list.length !== 0) {
                 i = list.shift()
-
-                for (let j = 0; j < this.n; j++) {
-                    if (!visited[j] && this.graph.map[i][j] === 1) {
-                        list.push(j)
-                        from[j] = i // j -> i
-                        visited[j] = true // 加入队列之后迟早会访问到，置为true
+                
+                for (const edge of this.map[i]) {
+                    if (!visited[edge.to]) {
+                        list.push(edge.to)
+                        from[edge.to] = edge.from
+                        visited[edge.to] = true // 加入队列之后迟早会访问到，置为true
                     }
-                }                
+                }
+                
             }
         }
 
@@ -145,9 +181,9 @@ class DenseIterator {
                 path.push(p)
                 p = from[p]
             }
-            return path.reverse() // 再正过来就是顺序路径
+            return path.reverse()
         }
     }
 }
 
-module.exports = { DenseIterator }
+module.exports = { SparseGraph }
