@@ -1,32 +1,34 @@
 /**
  * 实现一个索引堆
  */
-class IndexHeap {
+class IndexMaxHeap {
 	constructor () {
 		this.container = [] // 存储数据
 		this.indexes = []   // 存储数据对应的索引
 	}
+	size () {
+		return this.indexes.length
+	}
 	print () {
-		console.log(this.indexes)
-		console.log(this.container)
+		console.log('indexes', this.indexes)
+		console.log('container', this.container)
 	}
 	push (item) {
 		this.container.push(item)
 		this.indexes.push(this.container.length - 1) // 存储索引
 		this.shiftUp()
 	}
-	// 获取优先队列的第一个值
-	peek () {
-		if (this.indexes.length === 0) {
-	      return null
-	    }
-	    return this.getItem(0)
-	}
 	// 取出优先队列第一个值，相应对后面的值进行shiftDown操作，保持最大堆的性质
 	shift () {
+		const index = this.indexes.pop()
+
+		if (this.indexes.length === 0) {
+			return this.container[index]
+		}
+
 	    const item = this.getItem(0)
 
-	    this.indexes[0] = this.indexes.pop() // 将索引数组末尾值放到头顶
+	    this.indexes[0] = index // 将索引数组末尾值放到头顶
 	    this.shiftDown()
 
 	    return item
@@ -61,9 +63,6 @@ class IndexHeap {
 	getItem (index) {
 		return this.container[this.indexes[index]]
 	}
-	setItem (index, item) {
-		this.container[this.indexes[index]] = item
-	}
 	swap (a, b) {
 		// 交换索引数组中的索引，不改变container数组
 		const tmp = this.indexes[a]
@@ -73,12 +72,12 @@ class IndexHeap {
 	/**
 	 * [将新插入的元素的索引向上移动]
 	 */
-	shiftUp (last = this.indexes.length - 1) {
+	shiftUp (current = this.indexes.length - 1) {
 		// 如果父元素小则要换下来
-		while (this.hasParent(last) && this.getParent(last) < this.getItem(last)) {
-			const parentIndex = this.getParentIndex(last)
-			this.swap(last, parentIndex) // 当前元素和父元素交换，直到交换到顶部
-			last = parentIndex // 继续向上遍历
+		while (this.hasParent(current) && this.getParent(current) < this.getItem(current)) {
+			const parentIndex = this.getParentIndex(current)
+			this.swap(current, parentIndex) // 当前元素和父元素交换，直到交换到顶部，也可以
+			current = parentIndex // 继续向上遍历
 		}
 	}
 	shiftDown (parent = 0) {
@@ -104,23 +103,21 @@ class IndexHeap {
 		}
 	}
 	/**
-	 * 修改索引index处的值为item，并维护堆的性质
+	 * 注意改的是container，但是调整的是indexes数组
 	 * @param  index [要修改的索引]
 	 * @param  item  [要修改的值]
 	 */
 	change (index, item) {
-		// 注意这里的索引指的是this.indexes的索引
-		this.setItem(index, item)
-		// 为了维持堆的性质，需要尝试将对应的索引shiftUp或者shiftDown
-		// 首先需要找到index对应在this.indexes数组中的位置
-		for (let i = 0; i < this.indexes.length; i++) {
-			if (i === index) {
-				this.shiftUp(i)
-				this.shiftDown(i)
-				return
-			}
+		// 传入的index是container的index
+		this.container[index] = item
+		// 为了维持堆的性质，还需要尝试将indexes中值为index的索引进行shiftUp或者shiftDown，调整位置
+		index = this.indexes.indexOf(index)
+
+		if (index !== -1) {
+			this.shiftUp(index)
+			this.shiftDown(index)
 		}
 	}
 }
 
-module.exports = { IndexHeap }
+module.exports = { IndexMaxHeap }

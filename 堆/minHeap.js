@@ -20,13 +20,6 @@ class MinHeap {
 		this.container.push(item)
 		this.shiftUp()
 	}
-	// 获取优先队列的第一个值
-	peek () {
-		if (this.container.length === 0) {
-	      return null
-	    }
-	    return this.container[0]
-	}
 	// 取出优先队列第一个值，相应对后面的值进行shiftDown操作，保持最大堆的性质
 	shift () {
 	    if (this.container.length === 0) {
