@@ -22,7 +22,7 @@ class MinHeap {
 	      return null;
 	    }
 
-	    if (this.container.length === 1) {
+	    if (this.container.length <= 1) {
 	      return this.container.pop()
 	    }
 
@@ -88,11 +88,11 @@ class MinHeap {
 	shiftDown (parent = 0) {
 		// 判断是否有左孩子就可以确定当前节点有没有子元素，没有子元素的话，循环就没有必要进行了
 		while (this.hasLeftChild(parent)) {
-			// 每轮循环的目的是，让子元素中的较大值和父元素交换
+			// 每轮循环的目的是，让子元素中的较小值和父元素交换
 			const smallerIndex = (
 				this.hasRightChild(parent) &&
+				// 左孩子大于右孩子（这里为了统一comparator，借助compare函数进行比较）
 				this.compare(this.getLeftChild(parent), this.getRightChild(parent))
-				
 			)
 			? this.getRightChildIndex(parent)
 			: this.getLeftChildIndex(parent)

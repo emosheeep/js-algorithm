@@ -1,5 +1,5 @@
 /**
- * 最小生成树的概念在有权图上才成立，所以将实现代码放到了有权图中，这里引用代码测试即可
+ * 最小生成树的概念在有权图上才成立，所以将实现代码放到了有权图中，这里引用代码进行测试
  */
 const { DenseGraph } = require('../有权图/weight-dense-graph.js')
 const { SparseGraph } = require('../有权图/weight-sparse-graph.js')
@@ -45,4 +45,9 @@ console.groupEnd()
 console.group('-----------------------Prim 最小生成树--------------------------')
 console.assert(sparse.prim() === 181, 'prim of sparse is incorrect!')
 console.assert(dense.prim() === 181, 'prim of dense is incorrect!')
+console.groupEnd()
+
+console.group('-----------------------kruscal 最小生成树--------------------------')
+console.assert(sparse.kruscal() === 181, 'kruscal of sparse is incorrect!')
+console.assert(dense.kruscal() === 181, 'kruscal of dense is incorrect!')
 console.groupEnd()

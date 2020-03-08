@@ -3,6 +3,7 @@
  */
 const { MinHeap } = require('../../堆/minHeap.js')
 const { IndexMinHeap } = require('../../堆/indexMinHeap.js')
+const { UnionFind5 } = require('../../并查集/UnionFind5.js')
 
 class SparseGraph {
     constructor (n, directed = false) {
@@ -280,6 +281,43 @@ class SparseGraph {
             mst.push(edge) // 将满足条件的边保存起来
 
             visit(edge.to)
+        }
+
+        weight = mst.reduce((result, edge) => {
+            result += edge.weight
+            return result
+        }, 0)
+        console.group('邻接表最小生成树:')
+        console.log(mst)
+        console.log('最小权值', weight)
+        console.groupEnd()
+
+        return weight
+    }
+    // kruscal 算法求最小生成树
+    kruscal () {
+        // 首先将所有边进行一次排序，这里使用最小堆来进行
+        const edges = new MinHeap((a, b) => a.weight > b.weight)
+        const mst = [] // 存储最小生成树
+        const uf = new UnionFind5(this.n) // 初始化并查集
+        let weight = 0 // 权值总和
+
+        // 初始化最小堆
+        for (let i = 0; i < this.n; i ++) {
+            for (const edge of this.map[i]) {
+                if (edge.from < edge.to) // 无向图每条边存了两次，但是这里只放一次
+                    edges.push(edge)
+            }
+        }
+
+        while (edges.size() !== 0 || mst.length === this.sum - 1) {
+            const edge = edges.shift()
+
+            // 如果这条边的两个顶点之间没有连接，则该条边符合要求
+            if (!uf.isConnected(edge.from, edge.to)) {
+                mst.push(edge)
+                uf.union(edge.from, edge.to) // 连接起来
+            }
         }
 
         weight = mst.reduce((result, edge) => {

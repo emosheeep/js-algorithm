@@ -6,8 +6,8 @@ const { UnionFind5 } = require('./UnionFind5.js')
 
 const n = 100000
 
-// test(new UnionFind1(n), 'u1')
-// test(new UnionFind2(n), 'u2')
+test(new UnionFind1(n), 'u1')
+test(new UnionFind2(n), 'u2')
 test(new UnionFind3(n), 'u3')
 test(new UnionFind4(n), 'u4')
 test(new UnionFind5(n), 'u5')
