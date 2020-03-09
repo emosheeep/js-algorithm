@@ -83,6 +83,9 @@ class IndexMinHeap {
 	get (index) {
 		return this.container[index]
 	}
+	contain (index) {
+		return this.indexes.includes(index)
+	}
 	swap (a, b) {
 		// 交换索引数组中的索引，不改变container数组
 		const tmp = this.indexes[a]
