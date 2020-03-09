@@ -1,8 +1,8 @@
 /**
  * 最小生成树的概念在有权图上才成立，所以将实现代码放到了有权图中，这里引用代码进行测试
  */
-const { DenseGraph } = require('../有权图/weight-dense-graph.js')
-const { SparseGraph } = require('../有权图/weight-sparse-graph.js')
+const { DenseGraph } = require('./weight-dense-graph.js')
+const { SparseGraph } = require('./weight-sparse-graph.js')
 
 /**
  * 该示例为一张八个点的连通图

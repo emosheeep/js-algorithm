@@ -43,7 +43,7 @@ sparse.dfsIter()
 console.groupEnd()
 
 // 结果与图的存储方式有关
-console.group('-----------------------路径测试--------------------------')
+console.group('-----------------------路径测试(普通路径)--------------------------')
 console.log('邻接表中（5, 6）路径：', sparse.path(5, 6).join('->'))
 console.log('邻接矩阵（5, 6）路径：', dense.path(5, 6).join('->'))
 console.groupEnd()
