@@ -15,20 +15,28 @@ function quickSort1 (arr) {
 	}
 
 	function __partition (l, r) {
+		const ran = Math.floor(Math.random()*(r-l+1) + l)
+        __swap(l, ran)
 		const v = arr[l] // 标准
 		let j = l // 记录中间值位置
 
 		for (let i = l + 1; i <= r; i++) {
 			if (arr[i] < v) {
-				[arr[j + 1], arr[i]] = [arr[i], arr[j + 1]] // 交换
+				__swap(i, j+1) // 交换
 				j++
 			}
 		}
 
-		[arr[l], arr[j]] = [arr[j], arr[l]]
+		__swap(l, j)
 
 		return j //将这个中间值位置返回
 	}
+
+	function __swap(i, j) {
+        const tmp = arr[i]
+        arr[i] = arr[j]
+        arr[j] = tmp
+    }
 }
 function quickSort2 (arr) {
 	console.time('快速排序2.0')

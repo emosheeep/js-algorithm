@@ -12,6 +12,9 @@ class MaxHeap {
 	size () {
 		return this.container.length
 	}
+	peek () {
+		return this.container[0]
+	}
 	push (item) {
 		this.container.push(item)
 		this.shiftUp()

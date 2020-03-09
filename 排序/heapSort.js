@@ -19,22 +19,22 @@ function heapSort (arr) {
 	console.time('heapSort')
 	// 外层控制次数
 	for (let i = Math.floor((arr.length - 1)/2); i >= 0; i--) {
-		__shiftDown(i) // 先构建出最大堆
+		__shiftDown(arr, i) // 先构建出最大堆
 	}
 	for (let i = arr.length - 1; i > 0; i --) {
 		const tmp = arr[0]
 		arr[0] = arr[i]
 		arr[i] = tmp
-		__shiftDown(0, i)
+		__shiftDown(arr, 0, i)
     }
     console.timeEnd('heapSort')
 	console.assert(isSorted(arr), '排序失败')
 
 	// 对指定范围的数组进行shiftDown
-	function __shiftDown (parent, range = arr.length) {
+	function __shiftDown (arr, parent = 0, range = arr.length) {
 		while (2 * parent + 1 < range) {
 			const rightChildIndex = 2 * parent + 2
-			const biggerIndex = (
+			const smallerIndex = (
 				rightChildIndex < range &&
 				arr[rightChildIndex] > arr[rightChildIndex - 1] 
 			)
@@ -42,14 +42,14 @@ function heapSort (arr) {
 			: rightChildIndex - 1
 			
 
-			// 如果父元素没有子元素，或大于子元素则退出，循环结束
-			if (arr[parent] >= arr[biggerIndex]) break;
+			// 如果父元素没有子元素，或小于等于子元素则退出，循环结束
+			if (arr[parent] >= arr[smallerIndex]) break;
 
 			const tmp = arr[parent]
-			arr[parent] = arr[biggerIndex]
-			arr[biggerIndex] = tmp
+			arr[parent] = arr[smallerIndex]
+			arr[smallerIndex] = tmp
 
-			parent = biggerIndex // 循环继续
+			parent = smallerIndex // 循环继续
 		}
 	}
 }
